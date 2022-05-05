@@ -9,10 +9,6 @@ import org.testng.Assert;
 import org.testng.annotations.*;
 import pageObject.MainPage;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import static com.codeborne.selenide.Selenide.screenshot;
 
 public class Test2 {
@@ -30,19 +26,35 @@ public class Test2 {
         };
     }
 
-    @BeforeSuite
+    @BeforeClass
     public void beforeRun() {
         setUp = new SetUp();
         driver = setUp.getDriver();
         mainPage = MainPage.getInstance();
     }
+    @Test
+    public void checkInputExist() {
+        openPage(url);
+        screenshot("my_file_name");
+        WebElement input = findElement(mainPage.getInputField());
+        Assert.assertTrue(input.isDisplayed());
+    }
 
+    @Test
+    public void checkInsertToInput() {
+        openPage(url);
+        WebElement input = findElement(mainPage.getInputField());
+        input.sendKeys("ну штош");
+        screenshot("my_file_name2");
+        input.sendKeys(Keys.ENTER);
+        screenshot("my_file_name3");
+        Assert.assertTrue(driver.findElement(By.xpath(mainPage.getResultPageElement())).isDisplayed());
+    }
 
-    @Flaky
     @Severity(value = SeverityLevel.BLOCKER)
     @Test(dataProvider = "dp", description = "check result of search process")
     @Description(value = "Check that image exist")
-    public void checkInsertToInput(String inputText) {
+    public void checkInsertToInputDP(String inputText) {
         openPage(url);
         WebElement input = findElement(mainPage.getInputField());
         input.sendKeys(inputText);
@@ -63,7 +75,7 @@ public class Test2 {
         Selenide.open(url);
     }
 
-    @AfterSuite
+    @AfterClass
     public void ShutDown() {
         driver.quit();
         System.out.println("driver is terminated");
