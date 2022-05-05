@@ -8,6 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import pageObject.MainPage;
+import steps.CommonSteps;
 
 import static com.codeborne.selenide.Selenide.screenshot;
 
@@ -16,6 +17,7 @@ public class Test2 {
     WebDriver driver;
     private SetUp setUp;
     private MainPage mainPage;
+    private CommonSteps commonSteps;
 
     @DataProvider(name = "dp")
     public Object[][] dp() {
@@ -31,19 +33,20 @@ public class Test2 {
         setUp = new SetUp();
         driver = setUp.getDriver();
         mainPage = MainPage.getInstance();
+        commonSteps = CommonSteps.getInstance();
     }
     @Test
     public void checkInputExist() {
-        openPage(url);
+        commonSteps.openPage(url);
         screenshot("my_file_name");
-        WebElement input = findElement(mainPage.getInputField());
+        WebElement input = commonSteps.findElement(mainPage.getInputField());
         Assert.assertTrue(input.isDisplayed());
     }
 
     @Test
     public void checkInsertToInput() {
-        openPage(url);
-        WebElement input = findElement(mainPage.getInputField());
+        commonSteps.openPage(url);
+        WebElement input = commonSteps.findElement(mainPage.getInputField());
         input.sendKeys("ну штош");
         screenshot("my_file_name2");
         input.sendKeys(Keys.ENTER);
@@ -55,25 +58,17 @@ public class Test2 {
     @Test(dataProvider = "dp", description = "check result of search process")
     @Description(value = "Check that image exist")
     public void checkInsertToInputDP(String inputText) {
-        openPage(url);
-        WebElement input = findElement(mainPage.getInputField());
+        commonSteps.openPage(url);
+        WebElement input = commonSteps.findElement(mainPage.getInputField());
         input.sendKeys(inputText);
         input.sendKeys(Keys.ENTER);
         screenshot(inputText);
-        Assert.assertTrue(findElement(mainPage.getResultPageElement()).isDisplayed());
+        Assert.assertTrue(commonSteps.findElement(mainPage.getResultPageElement()).isDisplayed());
     }
 
 
 
-    @Step("find element by id - {inputField}")
-    private WebElement findElement(String inputField) {
-        return driver.findElement(By.xpath(inputField));
-    }
 
-    @Step("Open url in browser - {url}")
-    private void openPage(String url) {
-        Selenide.open(url);
-    }
 
     @AfterClass
     public void ShutDown() {
