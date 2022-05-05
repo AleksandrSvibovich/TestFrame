@@ -1,21 +1,20 @@
 package steps;
 
 import com.codeborne.selenide.Selenide;
-import configs.SetUp;
+import configs.ConfigBrowser;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import pageObject.MainPage;
 
 public class CommonSteps {
     private static CommonSteps commonSteps;
-    private SetUp setUp;
+    public ConfigBrowser configBrowser;
     private WebDriver driver;
 
     private CommonSteps() {
-        setUp = new SetUp();
-        driver = setUp.getDriver();
+        configBrowser = new ConfigBrowser();
+        driver = configBrowser.getDriver();
     }
 
     public static CommonSteps getInstance() {

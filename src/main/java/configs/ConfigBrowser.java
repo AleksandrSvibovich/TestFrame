@@ -6,12 +6,12 @@ import org.openqa.selenium.WebDriver;
 
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 
-public class SetUp {
+public class ConfigBrowser {
     private WebDriver driver;
     private String url = "http://www.google.com";
     private String browserName = "chrome";
 
-    public SetUp(){
+    public ConfigBrowser(){
         Configuration.baseUrl = url;
         Configuration.browser = browserName;
         Selenide.open();
@@ -22,5 +22,10 @@ public class SetUp {
 
     public WebDriver getDriver(){
         return driver;
+    }
+
+    public void ShutDown(){
+        driver.quit();
+        System.out.println("driver is terminated");
     }
 }
