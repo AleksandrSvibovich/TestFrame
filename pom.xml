@@ -39,6 +39,12 @@
             <artifactId>rest-assured</artifactId>
             <version>4.2.0</version>
         </dependency>
+<!--        added JSON dependency-->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20211205</version>
+        </dependency>
     </dependencies>
 
     <build>
