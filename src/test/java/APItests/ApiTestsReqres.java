@@ -1,5 +1,6 @@
 package APItests;
 
+import APIadditionalServices.Constants;
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
@@ -10,41 +11,38 @@ import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-public class ApiTests {
+public class ApiTestsReqres {
+    static final Logger LOG = LogManager.getLogger(ApiTestsReqres.class);
 
     String apiAddress = "https://reqres.in/api";
-
-    final static int SUCCESS_200 = 200;
-    final static int SUCCESS_201 = 201;
-    final static int SUCCESS_204 = 204;
-    final static int FAIL_404 = 404;
-    final static int FAIL_400 = 400;
-
 
     @Description("Get list of users")
     @Test
     public void getListUsers() {
         RequestSpecification specification = getRequestSpecification();
+        LOG.warn(" request URL /users?page=1");
         Response response = specification.request(Method.GET, "/users?page=1");
-
         JsonPath jsonPath = response.jsonPath();
         String email = jsonPath.get("data[0].email");
+        LOG.warn(new Throwable().getStackTrace()[0].getMethodName() + " founded element " + email);
 
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200);
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200);
         Assert.assertTrue("george.bluth@reqres.in".equalsIgnoreCase(email));
     }
 
     @Description("Get single user and check his or her name")
     @Test
     public void getSingleUser() {
+
         RequestSpecification specification = getRequestSpecification();
+        LOG.warn(" request URL /users/12");
         Response response = specification.request(Method.GET, "/users/12");
 
-        String first_name = response.jsonPath().get("data.first_name");
-
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200);
-        Assert.assertTrue("Rachel".equalsIgnoreCase(first_name));
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200);
+        Assert.assertTrue("Rachel".equalsIgnoreCase(response.jsonPath().get("data.first_name")));
     }
 
     @Description("No results of search")
@@ -52,7 +50,7 @@ public class ApiTests {
     public void checkNotFoundResult() {
         RequestSpecification specification = getRequestSpecification();
         Response response = specification.request(Method.GET, "/users/1232");
-        Assert.assertEquals(response.getStatusCode(), FAIL_404);
+        Assert.assertEquals(response.getStatusCode(), Constants.FAIL_404);
     }
 
     @Description("Get colours list endpoint")
@@ -61,7 +59,7 @@ public class ApiTests {
         RequestSpecification specification = getRequestSpecification();
         Response response = specification.request(Method.GET, "/unknown");
 
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200);
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200);
         Assert.assertEquals(response.jsonPath().get("data[1].name"), "fuchsia rose");
     }
 
@@ -71,7 +69,7 @@ public class ApiTests {
         RequestSpecification specification = getRequestSpecification();
         Response response = specification.request(Method.GET, "/unknown/2");
 
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200);
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200);
         Assert.assertTrue(response.jsonPath().get("data.color").equals("#C74375"));
     }
 
@@ -80,24 +78,24 @@ public class ApiTests {
     public void checkNotFoundResultColor() {
         RequestSpecification specification = getRequestSpecification();
         Response response = specification.request(Method.GET, "/unknown/222");
-        Assert.assertEquals(response.getStatusCode(), FAIL_404);
+        Assert.assertEquals(response.getStatusCode(), Constants.FAIL_404);
     }
 
-    @Description("Crate a new user")
+    @Description("Crate a new user - POST request")
     @Test
     public void createUser() {
         RequestSpecification specification = getRequestSpecification();
 
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("name", "Olegka");
-        jsonBody.put("job", "Slesar\'");
+        jsonBody.put("job", "Slesar'");
         specification.body(jsonBody.toString());
 
         Response response = specification.request(Method.POST, "/users");
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_201);
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_201);
     }
 
-    @Description("Update user information")
+    @Description("Update user information - PUT request")
     @Test
     public void updateUserInfo() {
         RequestSpecification specification = getRequestSpecification();
@@ -106,25 +104,23 @@ public class ApiTests {
         jsonBody.put("name", "Mishanja");
         jsonBody.put("job", "Boss");
 
-        specification.header(new Header("Content-Type", "application/json"));
         specification.body(jsonBody.toString());
 
         Response response = specification.request(Method.PUT, "/users/459");
-        String result = response.jsonPath().get("name");
 
-        Assert.assertTrue(result.contains("Mishanja"));
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200, response.body().asString());
+        Assert.assertEquals(response.jsonPath().get("name"), ("Mishanja"), "ISSUE - " + response.body().asString());
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200);
     }
 
-    @Description("Delete user information")
+    @Description("Delete user information - DELETE request")
     @Test
     public void deleteUser() {
         RequestSpecification specification = getRequestSpecification();
         Response response = specification.request(Method.DELETE, "/users/2");
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_204, response.body().asString());
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_204, response.body().asString());
     }
 
-    @Description("Registration user account")
+    @Description("Registration user account - POST request")
     @Test
     public void registrationUser() {
         RequestSpecification specification = getRequestSpecification();
@@ -133,14 +129,13 @@ public class ApiTests {
         jsonBody.put("email", "eve.holt@reqres.in");
         jsonBody.put("password", "pistol");
 
-        specification.header(new Header("Content-Type", "application/json"));
         specification.body(jsonBody.toString());
 
         Response response = specification.request(Method.POST, "/register");
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200, response.body().asString());
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200, response.body().asString());
     }
 
-    @Description("Unsuccessful registration check")
+    @Description("Unsuccessful registration check - POST request")
     @Test
     public void unsuccessfulRegistrationCheck() {
         RequestSpecification specification = getRequestSpecification();
@@ -148,14 +143,13 @@ public class ApiTests {
         JSONObject objectBody = new JSONObject();
         objectBody.put("email", "sydney@fife");
 
-        specification.header(new Header("Content-Type", "application/json"));
         specification.body(objectBody.toString());
 
         Response response = specification.request(Method.POST, "/register");
-        Assert.assertEquals(response.getStatusCode(), FAIL_400, response.asString());
+        Assert.assertEquals(response.getStatusCode(), Constants.FAIL_400, response.asString());
     }
 
-    @Description("Login test")
+    @Description("Login test - POST request")
     @Test
     public void loginCheck() {
         RequestSpecification specification = getRequestSpecification();
@@ -164,15 +158,14 @@ public class ApiTests {
         jsonBody.put("email", "eve.holt@reqres.in");
         jsonBody.put("password", "cityslicka");
 
-        specification.header(new Header("Content-Type", "application/json"));
         specification.body(jsonBody.toString());
 
         Response response = specification.request(Method.POST, "/login");
-        Assert.assertTrue(response.getStatusCode() == SUCCESS_200, "Login failed " + response.body().asString());
+        Assert.assertTrue(response.getStatusCode() == Constants.SUCCESS_200, "Login failed " + response.body().asString());
         Assert.assertTrue(response.jsonPath().get("token").equals("QpwL5tke4Pnpja7X4"), response.jsonPath().get("token"));
     }
 
-    @Description("Failed login test")
+    @Description("Failed login test - POST request")
     @Test
     public void failedLoginCheck() {
         RequestSpecification specification = getRequestSpecification();
@@ -180,29 +173,28 @@ public class ApiTests {
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("email", "eve.holt@reqres.in");
 
-        specification.header(new Header("Content-Type", "application/json"));
         specification.body(jsonBody.toString());
 
         Response response = specification.request(Method.POST, "/login");
-        Assert.assertTrue(response.getStatusCode() == FAIL_400, "Login failed " + response.body().asString());
+        Assert.assertTrue(response.getStatusCode() == Constants.FAIL_400, "Login failed " + response.body().asString());
     }
 
-    @Description("Delay 3 seconds check ")
+    @Description("Delay 3 seconds check - GET request")
     @Test
     public void checkDelayResults() {
         RequestSpecification specification = getRequestSpecification();
         Response response = specification.queryParam("delay", "3").request(Method.GET, "/users");
 
-        int total_pages = response.jsonPath().get("total_pages");
-
-        Assert.assertEquals(response.getStatusCode(), SUCCESS_200);
-        Assert.assertTrue(total_pages == 2, response.body().asString());
+        Assert.assertEquals(response.getStatusCode(), Constants.SUCCESS_200);
+        Assert.assertTrue((int) response.jsonPath().get("total_pages") == 2, response.body().asString());
         Assert.assertTrue(response.time() > 3000, String.valueOf(response.time()));
     }
 
     private RequestSpecification getRequestSpecification() {
         RequestSpecification specification = RestAssured.given();
+        specification.header(new Header("Content-Type", "application/json"));
         specification.baseUri(apiAddress);
         return specification;
     }
+
 }
