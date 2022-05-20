@@ -1,6 +1,6 @@
 package APItests;
 
-import APIadditionalServices.Constants;
+import APIHelper.Constants;
 import io.qameta.allure.Description;
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-public class ApiTestsReqres {
-    static final Logger LOG = LogManager.getLogger(ApiTestsReqres.class);
+public class TetsNGTests {
+    static final Logger LOG = LogManager.getLogger(TetsNGTests.class);
 
     String apiAddress = "https://reqres.in/api";
 
